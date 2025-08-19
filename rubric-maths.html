@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Περιγραφική Κλίμακα Αξιολόγησης για τα Μαθηματικά</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #fdfbf6; /* A very light beige */
+        }
+        .score-cell, .behaviour-cell {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .selected-score, .selected-behaviour {
+            background-color: #fef3c7 !important; /* Light gold/amber */
+            border: 2px solid #c19a6b;
+        }
+        .input-field {
+            @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-600 focus:border-amber-600 sm:text-sm;
+        }
+        
+        /* --- Print-specific styles --- */
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: portrait;
+                margin: 0.5in;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-family: 'Georgia', serif;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-stone-800 antialiased">
+
+    <!-- This is the interactive view for the screen -->
+    <div id="interactive-rubric" class="container mx-auto p-4 sm:p-6 lg:p-8 no-print">
+        
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <div>
+                <h1 id="main-title" class="text-2xl sm:text-3xl font-bold text-stone-900">Περιγραφική Κλίμακα Αξιολόγησης για τα Μαθηματικά</h1>
+                <p id="sub-title" class="text-sm text-stone-500 mt-1">Κάντε κλικ στα κελιά για βαθμολογία και εκτυπώστε την περίληψη.</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 p-4 bg-white rounded-lg shadow">
+            <div>
+                <label for="student-name" class="block text-sm font-medium text-stone-700">Ονοματεπώνυμο Μαθητή/Μαθήτριας</label>
+                <input type="text" id="student-name" class="input-field">
+            </div>
+            <div>
+                <label for="teacher-name" class="block text-sm font-medium text-stone-700">Ονοματεπώνυμο Εκπαιδευτικού</label>
+                <input type="text" id="teacher-name" class="input-field">
+            </div>
+             <div>
+                <label for="subject" class="block text-sm font-medium text-stone-700">Μάθημα</label>
+                <input type="text" id="subject" class="input-field">
+            </div>
+            <div>
+                <label for="class-name" class="block text-sm font-medium text-stone-700">Τμήμα</label>
+                <input type="text" id="class-name" class="input-field">
+            </div>
+            <div>
+                <label for="date" class="block text-sm font-medium text-stone-700">Ημερομηνία</label>
+                <input type="date" id="date" class="input-field">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-lg shadow">
+            <table id="rubric-table" class="min-w-full divide-y divide-stone-200">
+                <thead class="bg-stone-100">
+                    <tr>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-stone-600 uppercase tracking-wider">ΚΡΙΤΗΡΙΑ</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">4 - ΥΠΕΡΒΑΙΝΕΙ ΤΙΣ ΠΡΟΣΔΟΚΙΕΣ</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-blue-800 uppercase tracking-wider">3 - ΑΝΤΑΠΟΚΡΙΝΕΤΑΙ ΣΤΙΣ ΠΡΟΣΔΟΚΙΕΣ</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-amber-700 uppercase tracking-wider">2 - ΠΡΟΣΕΓΓΙΖΕΙ ΤΙΣ ΠΡΟΣΔΟΚΙΕΣ</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-red-800 uppercase tracking-wider">1 - ΚΑΤΩ ΤΩΝ ΠΡΟΣΔΟΚΙΩΝ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200">
+                    <tr class="rubric-row hover:bg-stone-50">
+                        <td class="px-6 py-4 font-semibold text-stone-900">Κατανόηση Μαθηματικών Εννοιών</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4">Επιδεικνύει βαθιά κατανόηση των εννοιών και των μεταξύ τους συνδέσεων. Μπορεί να εξηγήσει το «γιατί» πίσω από τις διαδικασίες.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3">Δείχνει καλή κατανόηση των μαθηματικών εννοιών και μπορεί να τις εφαρμόσει σωστά.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2">Δείχνει μερική ή επιφανειακή κατανόηση. Μπορεί να συγχέει σχετικές έννοιες.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1">Δυσκολεύεται να κατανοήσει τις βασικές έννοιες και τους ορισμούς.</td>
+                    </tr>
+                    <tr class="rubric-row bg-stone-50 hover:bg-stone-100">
+                        <td class="px-6 py-4 font-semibold text-stone-900">Διαδικαστική Ευχέρεια & Ακρίβεια</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4">Εκτελεί υπολογισμούς και αλγοριθμικές διαδικασίες με ταχύτητα, ακρίβεια και ευελιξία.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3">Εκτελεί διαδικασίες με ακρίβεια τις περισσότερες φορές, με ελάχιστα υπολογιστικά λάθη.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2">Κάνει συχνά υπολογιστικά λάθη ή σφάλματα στις διαδικασίες που επηρεάζουν το αποτέλεσμα.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1">Δεν μπορεί να εκτελέσει με συνέπεια τις βασικές μαθηματικές διαδικασίες.</td>
+                    </tr>
+                    <tr class="rubric-row hover:bg-stone-50">
+                        <td class="px-6 py-4 font-semibold text-stone-900">Επίλυση Προβλημάτων & Στρατηγική Σκέψη</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4">Αναγνωρίζει και εφαρμόζει πολλαπλές στρατηγικές για την επίλυση σύνθετων προβλημάτων. Επιμένει μπροστά στις προκλήσεις.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3">Επιλέγει και εφαρμόζει κατάλληλες στρατηγικές για την επίλυση τυπικών προβλημάτων.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2">Χρειάζεται καθοδήγηση για να επιλέξει ή να εφαρμόσει μια στρατηγική επίλυσης προβλημάτων.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1">Δυσκολεύεται να ξεκινήσει ή να ολοκληρώσει τα βήματα για την επίλυση ενός προβλήματος.</td>
+                    </tr>
+                    <tr class="rubric-row bg-stone-50 hover:bg-stone-100">
+                        <td class="px-6 py-4 font-semibold text-stone-900">Μαθηματική Αιτιολόγηση & Επικοινωνία</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4">Αιτιολογεί με σαφήνεια και λογική τη σκέψη του/της χρησιμοποιώντας ακριβή μαθηματική γλώσσα και σύμβολα.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3">Μπορεί να εξηγήσει τα βήματα που ακολούθησε και να δικαιολογήσει τις απαντήσεις του/της.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2">Η εξήγηση της σκέψης του/της είναι ασαφής, ελλιπής ή περιέχει λογικά κενά.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1">Δεν μπορεί να εξηγήσει ή να αιτιολογήσει τη μαθηματική του/της σκέψη.</td>
+                    </tr>
+                    <tr class="rubric-row hover:bg-stone-50">
+                        <td class="px-6 py-4 font-semibold text-stone-900">Αναπαράσταση & Μοντελοποίηση</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4">Δημιουργεί και ερμηνεύει με ευχέρεια μαθηματικές αναπαραστάσεις (π.χ. γραφήματα, πίνακες, εξισώσεις) για να μοντελοποιήσει και να λύσει προβλήματα.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3">Χρησιμοποιεί κατάλληλα τις παρεχόμενες αναπαραστάσεις και μπορεί να δημιουργήσει απλά μοντέλα.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2">Δυσκολεύεται να ερμηνεύσει ή να δημιουργήσει μαθηματικές αναπαραστάσεις.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1">Δεν μπορεί να συνδέσει τις μαθηματικές αναπαραστάσεις με το πρόβλημα.</td>
+                    </tr>
+                     <tr class="rubric-row bg-stone-50 hover:bg-stone-100">
+                        <td class="px-6 py-4 font-semibold text-stone-900">Προετοιμασία & Οργάνωση</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4">Είναι πάντα προετοιμασμένος/η για το μάθημα, με τα υλικά του/της οργανωμένα και τις εργασίες ολοκληρωμένες.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3">Είναι συνήθως προετοιμασμένος/η και οργανωμένος/η.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2">Μερικές φορές δεν είναι προετοιμασμένος/η ή είναι ανοργάνωτος/η.</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1">Συχνά δεν είναι προετοιμασμένος/η, χωρίς τα απαραίτητα υλικά ή τις εργασίες.</td>
+                    </tr>
+                    <!-- Behaviour Section - Not Graded -->
+                    <tr class="behaviour-row bg-stone-100 border-t-2 border-dashed border-stone-300">
+                        <td class="px-6 py-4 align-top">
+                            <p class="font-semibold text-stone-900">ΣΥΜΠΕΡΙΦΟΡΑ ΣΤΗΝ ΤΑΞΗ</p>
+                            <p class="text-xs font-normal italic text-stone-500">(Για παρατήρηση μόνο - δεν βαθμολογείται)</p>
+                        </td>
+                        <td class="behaviour-cell px-6 py-4 text-sm">Σταθερά θετικός/ή, αφοσιωμένος/η και με σεβασμό. Πρότυπο για τους άλλους.</td>
+                        <td class="behaviour-cell px-6 py-4 text-sm">Γενικά θετικός/ή και με σεβασμό. Ακολουθεί τις οδηγίες και συμμετέχει κατάλληλα.</td>
+                        <td class="behaviour-cell px-6 py-4 text-sm">Μερικές φορές αφηρημένος/η ή ενοχλητικός/ή. Απαιτεί περιστασιακές υπενθυμίσεις.</td>
+                        <td class="behaviour-cell px-6 py-4 text-sm">Συχνά αφηρημένος/η ή ενοχλητικός/ή, εμποδίζοντας τη δική του/της ή τη μάθηση των άλλων.</td>
+                    </tr>
+                    <tr class="bg-stone-100">
+                        <td class="px-6 pb-4 pt-0 text-xs font-semibold text-stone-600 align-top">Πρόσθετα Σχόλια:</td>
+                        <td class="px-6 pb-4 pt-0" colspan="4">
+                            <textarea id="behaviour-comments" class="w-full h-16 p-2 border border-stone-300 rounded-md text-sm font-sans" placeholder="Εισαγάγετε σχόλια εδώ..."></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8 flex flex-col sm:flex-row justify-end items-center gap-4">
+            <div class="bg-white p-4 rounded-lg shadow w-full sm:w-auto text-center sm:text-left">
+                <h3 class="text-lg font-bold text-stone-900">ΣΥΝΟΛΙΚΗ ΒΑΘΜΟΛΟΓΙΑ</h3>
+                <div class="flex items-baseline justify-center sm:justify-start gap-4">
+                    <p class="text-3xl font-bold text-amber-700"><span id="total-score">0</span> / 24</p>
+                    <p class="text-xl font-bold text-stone-600">(<span id="score-out-of-20">0.0</span> / 20)</p>
+                </div>
+            </div>
+            <button id="print-btn" class="w-full sm:w-auto bg-amber-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors duration-300 flex items-center justify-center gap-2" style="background-color: #c19a6b;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="http://www.w3.org/2000/svg" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
+                <span>Εκτύπωση</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- This is the hidden, formatted view for printing -->
+    <div id="print-output" class="print-only p-4"></div>
+
+    <footer class="text-center text-sm text-stone-500 py-6 no-print">
+        <span>✨✍️ Δημιουργία: Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικών-Θεατρολόγος, Διευθυντής 1ου Γυμνασίου Πυλαίας ✍️✨</span>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const printBtn = document.getElementById('print-btn');
+            const rubricTable = document.getElementById('rubric-table');
+            const totalScoreEl = document.getElementById('total-score');
+            const scoreOutOf20El = document.getElementById('score-out-of-20');
+            const printOutputContainer = document.getElementById('print-output');
+            const behaviourCommentsEl = document.getElementById('behaviour-comments');
+
+            const calculateTotalScore = () => {
+                let total = 0;
+                rubricTable.querySelectorAll('.rubric-row').forEach(row => {
+                    const selectedCell = row.querySelector('.selected-score');
+                    if (selectedCell) {
+                        total += parseInt(selectedCell.dataset.score, 10);
+                    }
+                });
+                totalScoreEl.textContent = total;
+
+                const scoreOutOf20 = (total / 24) * 20;
+                scoreOutOf20El.textContent = scoreOutOf20.toFixed(1);
+            };
+
+            const handleScoreSelect = (event) => {
+                const clickedCell = event.target.closest('.score-cell');
+                if (!clickedCell) return;
+
+                const parentRow = clickedCell.closest('.rubric-row');
+                const currentlySelected = parentRow.querySelector('.selected-score');
+                
+                if (currentlySelected) {
+                    currentlySelected.classList.remove('selected-score');
+                }
+
+                if(currentlySelected !== clickedCell){
+                    clickedCell.classList.add('selected-score');
+                }
+                
+                calculateTotalScore();
+            };
+
+            const handleBehaviourSelect = (event) => {
+                const clickedCell = event.target.closest('.behaviour-cell');
+                if (!clickedCell) return;
+
+                const parentRow = clickedCell.closest('.behaviour-row');
+                const currentlySelected = parentRow.querySelector('.selected-behaviour');
+
+                if (currentlySelected) {
+                    currentlySelected.classList.remove('selected-behaviour');
+                }
+
+                if (currentlySelected !== clickedCell) {
+                    clickedCell.classList.add('selected-behaviour');
+                }
+            };
+            
+            const prepareAndPrint = () => {
+                const studentName = document.getElementById('student-name').value || 'N/A';
+                const teacherName = document.getElementById('teacher-name').value || 'N/A';
+                const subject = document.getElementById('subject').value || 'N/A';
+                const className = document.getElementById('class-name').value || 'N/A';
+                const date = document.getElementById('date').value;
+                const totalScore = totalScoreEl.textContent;
+                const scoreOutOf20 = scoreOutOf20El.textContent;
+                const behaviourComments = behaviourCommentsEl.value;
+                const selectedBehaviourCell = rubricTable.querySelector('.selected-behaviour');
+
+                const labels = {
+                    title: "Αναφορά Αξιολόγησης για τα Μαθηματικά",
+                    student: "Μαθητής/τρια",
+                    teacher: "Εκπαιδευτικός",
+                    subject: "Μάθημα",
+                    class: "Τμήμα",
+                    date: "Ημερομηνία",
+                    total: "Συνολική Βαθμολογία",
+                    behaviour: "Παρατηρήσεις Συμπεριφοράς",
+                    comments: "Πρόσθετα Σχόλια"
+                };
+                const footerText = document.querySelector('footer span').textContent;
+
+                let printHTML = `<div class="font-sans" style="font-family: 'Georgia', serif;">`;
+                printHTML += `<h1 class="text-2xl font-bold border-b-2 pb-1 mb-4">${labels.title}</h1>`;
+                
+                printHTML += `<div class="grid grid-cols-2 gap-x-6 gap-y-2 mb-4 text-sm">`;
+                printHTML += `<div><strong class="font-semibold">${labels.student}:</strong> ${studentName}</div>`;
+                printHTML += `<div><strong class="font-semibold">${labels.teacher}:</strong> ${teacherName}</div>`;
+                printHTML += `<div><strong class="font-semibold">${labels.subject}:</strong> ${subject}</div>`;
+                printHTML += `<div><strong class="font-semibold">${labels.class}:</strong> ${className}</div>`;
+                printHTML += `<div><strong class="font-semibold">${labels.date}:</strong> ${date}</div>`;
+                printHTML += `</div>`;
+
+                const headerCells = Array.from(rubricTable.querySelectorAll('thead th'));
+                rubricTable.querySelectorAll('.rubric-row').forEach(row => {
+                    const selectedCell = row.querySelector('.selected-score');
+                    if (selectedCell) {
+                        const criterionTitle = row.querySelector('td:first-child').textContent;
+                        const scoreIndex = Array.from(selectedCell.parentNode.children).indexOf(selectedCell);
+                        const scoreTitle = headerCells[scoreIndex].textContent;
+                        const scoreDescription = selectedCell.textContent;
+
+                        printHTML += `<div class="mb-3 break-inside-avoid">`;
+                        printHTML += `<h2 class="text-lg font-bold text-stone-800">${criterionTitle}</h2>`;
+                        printHTML += `<div class="mt-1 p-2 bg-stone-100 rounded-lg border border-stone-200">`;
+                        printHTML += `<p class="font-semibold text-stone-700 text-sm">${scoreTitle}</p>`;
+                        printHTML += `<p class="mt-1 text-xs text-stone-600">${scoreDescription}</p>`;
+                        printHTML += `</div></div>`;
+                    }
+                });
+                
+                if (selectedBehaviourCell) {
+                    const behaviourDescription = selectedBehaviourCell.textContent;
+                    printHTML += `<div class="mb-3 break-inside-avoid">`;
+                    printHTML += `<h2 class="text-lg font-bold text-stone-800">${labels.behaviour}</h2>`;
+                    printHTML += `<div class="mt-1 p-2 bg-stone-100 rounded-lg border border-stone-200">`;
+                    printHTML += `<p class="text-xs text-stone-600">${behaviourDescription}</p>`;
+                    printHTML += `</div></div>`;
+                }
+
+                if (behaviourComments && behaviourComments.trim() !== '') {
+                    printHTML += `<div class="mb-3 break-inside-avoid">`;
+                    printHTML += `<h2 class="text-lg font-bold text-stone-800">${labels.comments}</h2>`;
+                    printHTML += `<div class="mt-1 p-2 bg-stone-100 rounded-lg border border-stone-200">`;
+                    printHTML += `<p class="text-xs text-stone-600" style="white-space: pre-wrap;">${behaviourComments}</p>`;
+                    printHTML += `</div></div>`;
+                }
+
+                printHTML += `<div class="flex justify-end mt-4 pt-2 border-t-2">`;
+                printHTML += `<div class="text-right">`;
+                printHTML += `<p class="text-base font-bold">${labels.total}</p>`;
+                printHTML += `<p class="text-3xl font-bold" style="color: #c19a6b;">${totalScore} / 24 (${scoreOutOf20} / 20)</p>`;
+                printHTML += `</div></div>`;
+
+                printHTML += `<footer class="text-center text-xs text-stone-500 pt-4 mt-4 border-t">`;
+                printHTML += footerText;
+                printHTML += `</footer>`;
+
+                printHTML += `</div>`;
+
+                printOutputContainer.innerHTML = printHTML;
+                window.print();
+            };
+
+            printBtn.addEventListener('click', prepareAndPrint);
+            
+            if (rubricTable) {
+                const tableBody = rubricTable.querySelector('tbody');
+                tableBody.addEventListener('click', (event) => {
+                    if (event.target.closest('.score-cell')) {
+                        handleScoreSelect(event);
+                    } else if (event.target.closest('.behaviour-cell')) {
+                        handleBehaviourSelect(event);
+                    }
+                });
+            }
+            
+            const dateInput = document.getElementById('date');
+            if(dateInput) {
+                dateInput.valueAsDate = new Date();
+            }
+        });
+    </script>
+</body>
+</html>

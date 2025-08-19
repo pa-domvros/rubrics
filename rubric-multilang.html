@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descriptive Grading Rubric for Language Subjects</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #fdfbf6; /* A very light beige */
+        }
+        .lang-btn.active {
+            background-color: #c19a6b; /* Cinnamon */
+            color: white;
+            font-weight: bold;
+        }
+        .score-cell, .behaviour-cell {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .selected-score, .selected-behaviour {
+            background-color: #fef3c7 !important; /* Light gold/amber */
+            border: 2px solid #c19a6b;
+        }
+        .input-field {
+            @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-600 focus:border-amber-600 sm:text-sm;
+        }
+        
+        /* --- Print-specific styles --- */
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: portrait;
+                margin: 0.5in; /* Reduced page margins */
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-family: 'Georgia', serif;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-stone-800 antialiased">
+
+    <!-- This is the interactive view for the screen -->
+    <div id="interactive-rubric" class="container mx-auto p-4 sm:p-6 lg:p-8 no-print">
+        
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <div>
+                <h1 id="main-title" class="text-2xl sm:text-3xl font-bold text-stone-900" data-en="Descriptive Grading Rubric for Language Subjects" data-el="Περιγραφική Κλίμακα Αξιολόγησης για Γλωσσικά Μαθήματα" data-fr="Grille d'Évaluation Descriptive pour les Matières Linguistiques" data-de="Deskriptive Bewertungsrubrik für Sprachfächer">Descriptive Grading Rubric for Language Subjects</h1>
+                <p id="sub-title" class="text-sm text-stone-500 mt-1" data-en="Click cells to assign scores, then print a summary." data-el="Κάντε κλικ στα κελιά για βαθμολογία και εκτυπώστε την περίληψη." data-fr="Cliquez sur les cellules pour attribuer des notes, puis imprimez un résumé." data-de="Klicken Sie auf die Zellen, um Noten zu vergeben, und drucken Sie dann eine Zusammenfassung.">Click cells to assign scores, then print a summary.</p>
+            </div>
+            
+            <div class="flex items-center space-x-1 mt-4 sm:mt-0 bg-stone-200 p-1 rounded-lg">
+                <button id="btn-en" class="lang-btn active px-3 py-2 text-sm rounded-md transition-colors duration-300" data-lang="en">English</button>
+                <button id="btn-el" class="lang-btn px-3 py-2 text-sm rounded-md transition-colors duration-300" data-lang="el">Ελληνικά</button>
+                <button id="btn-fr" class="lang-btn px-3 py-2 text-sm rounded-md transition-colors duration-300" data-lang="fr">Français</button>
+                <button id="btn-de" class="lang-btn px-3 py-2 text-sm rounded-md transition-colors duration-300" data-lang="de">Deutsch</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 p-4 bg-white rounded-lg shadow">
+            <div>
+                <label for="student-name" class="block text-sm font-medium text-stone-700" data-en="Student Name" data-el="Ονοματεπώνυμο Μαθητή/Μαθήτριας" data-fr="Nom de l'Élève" data-de="Name des Schülers/der Schülerin">Student Name</label>
+                <input type="text" id="student-name" class="input-field">
+            </div>
+            <div>
+                <label for="teacher-name" class="block text-sm font-medium text-stone-700" data-en="Teacher Name" data-el="Ονοματεπώνυμο Εκπαιδευτικού" data-fr="Nom de l'Enseignant(e)" data-de="Name des Lehrers/der Lehrerin">Teacher Name</label>
+                <input type="text" id="teacher-name" class="input-field">
+            </div>
+             <div>
+                <label for="subject" class="block text-sm font-medium text-stone-700" data-en="Subject" data-el="Μάθημα" data-fr="Matière" data-de="Fach">Subject</label>
+                <input type="text" id="subject" class="input-field">
+            </div>
+            <div>
+                <label for="class-name" class="block text-sm font-medium text-stone-700" data-en="Class" data-el="Τμήμα" data-fr="Classe" data-de="Klasse">Class</label>
+                <input type="text" id="class-name" class="input-field">
+            </div>
+            <div>
+                <label for="date" class="block text-sm font-medium text-stone-700" data-en="Date" data-el="Ημερομηνία" data-fr="Date" data-de="Datum">Date</label>
+                <input type="date" id="date" class="input-field">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-lg shadow">
+            <table id="rubric-table" class="min-w-full divide-y divide-stone-200">
+                <thead class="bg-stone-100">
+                    <tr>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-stone-600 uppercase tracking-wider" data-en="Criteria" data-el="ΚΡΙΤΗΡΙΑ" data-fr="Critères" data-de="Kriterien">Criteria</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider" data-en="4 - Exceeds Expectations" data-el="4 - ΥΠΕΡΒΑΙΝΕΙ ΤΙΣ ΠΡΟΣΔΟΚΙΕΣ" data-fr="4 - Dépasse les Attentes" data-de="4 - Übertrifft die Erwartungen">4 - Exceeds Expectations</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-blue-800 uppercase tracking-wider" data-en="3 - Meets Expectations" data-el="3 - ΑΝΤΑΠΟΚΡΙΝΕΤΑΙ ΣΤΙΣ ΠΡΟΣΔΟΚΙΕΣ" data-fr="3 - Répond aux Attentes" data-de="3 - Erfüllt die Erwartungen">3 - Meets Expectations</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-amber-700 uppercase tracking-wider" data-en="2 - Approaching Expectations" data-el="2 - ΠΡΟΣΕΓΓΙΖΕΙ ΤΙΣ ΠΡΟΣΔΟΚΙΕΣ" data-fr="2 - Proche des Attentes" data-de="2 - Nähert sich den Erwartungen">2 - Approaching Expectations</th>
+                        <th scope="col" class="w-1/6 px-6 py-4 text-left text-xs font-bold text-red-800 uppercase tracking-wider" data-en="1 - Below Expectations" data-el="1 - ΚΑΤΩ ΤΩΝ ΠΡΟΣΔΟΚΙΩΝ" data-fr="1 - En dessous des Attentes" data-de="1 - Unter den Erwartungen">1 - Below Expectations</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200">
+                    <tr class="rubric-row hover:bg-stone-50">
+                        <td class="px-6 py-4 font-semibold text-stone-900" data-en="Task Achievement" data-el="ΕΠΙΤΕΥΞΗ ΣΤΟΧΟΥ" data-fr="Réalisation de la Tâche" data-de="Aufgabenerfüllung">Task Achievement</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4" data-en="Fully and effectively addresses all parts of the task. The purpose is clear and the response is highly relevant." data-el="Καλύπτει πλήρως και αποτελεσματικά όλα τα μέρη της εργασίας. Ο σκοπός είναι σαφής και η απάντηση είναι εξαιρετικά σχετική." data-fr="Traite entièrement et efficacement toutes les parties de la tâche. L'objectif est clair et la réponse est très pertinente." data-de="Behandelt alle Teile der Aufgabe vollständig und effektiv. Der Zweck ist klar und die Antwort ist äußerst relevant.">Fully and effectively addresses all parts of the task...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3" data-en="Addresses all parts of the task well. The purpose is clear and the response is relevant." data-el="Καλύπτει καλά όλα τα μέρη της εργασίας. Ο σκοπός είναι σαφής και η απάντηση είναι σχετική." data-fr="Traite bien toutes les parties de la tâche. L'objectif est clair et la réponse est pertinente." data-de="Behandelt alle Teile der Aufgabe gut. Der Zweck ist klar und die Antwort ist relevant.">Addresses all parts of the task well...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2" data-en="Addresses most parts of the task, but some may be underdeveloped. The purpose is generally clear." data-el="Καλύπτει τα περισσότερα μέρη της εργασίας, αλλά ορισμένα μπορεί να είναι ανεπαρκώς ανεπτυγμένα. Ο σκοπός είναι γενικά σαφής." data-fr="Traite la plupart des parties de la tâche, mais certaines peuvent être sous-développées. L'objectif est généralement clair." data-de="Behandelt die meisten Teile der Aufgabe, aber einige sind möglicherweise unterentwickelt. Der Zweck ist im Allgemeinen klar.">Addresses most parts of the task...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1" data-en="Does not adequately address the task. The purpose is unclear or the response is largely irrelevant." data-el="Δεν καλύπτει επαρκώς την εργασία. Ο σκοπός είναι ασαφής ή η απάντηση είναι σε μεγάλο βαθμό άσχετη." data-fr="Ne traite pas adéquatement la tâche. L'objectif est flou ou la réponse est largement non pertinente." data-de="Behandelt die Aufgabe nicht angemessen. Der Zweck ist unklar oder die Antwort ist weitgehend irrelevant.">Does not adequately address the task...</td>
+                    </tr>
+                    <tr class="rubric-row bg-stone-50 hover:bg-stone-100">
+                        <td class="px-6 py-4 font-semibold text-stone-900" data-en="Coherence & Cohesion" data-el="ΣΥΝΟΧΗ & ΣΥΝΕΚΤΙΚΟΤΗΤΑ" data-fr="Cohérence & Cohésion" data-de="Kohärenz & Kohäsion">Coherence & Cohesion</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4" data-en="Information and ideas are logically and skillfully sequenced. A wide range of cohesive devices are used effectively." data-el="Οι πληροφορίες και οι ιδέες παρουσιάζονται με λογική και επιδέξια σειρά. Χρησιμοποιείται αποτελεσματικά ένα ευρύ φάσμα συνεκτικών μηχανισμών." data-fr="Les informations et les idées sont séquencées de manière logique et habile. Une large gamme d'outils de cohésion est utilisée efficacement." data-de="Informationen und Ideen sind logisch und geschickt angeordnet. Eine breite Palette von kohäsiven Mitteln wird effektiv eingesetzt.">Information and ideas are logically and skillfully sequenced...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3" data-en="Information and ideas are logically organized. Cohesive devices are used appropriately." data-el="Οι πληροφορίες και οι ιδέες είναι λογικά οργανωμένες. Οι συνεκτικοί μηχανισμοί χρησιμοποιούνται κατάλληλα." data-fr="Les informations et les idées sont organisées de manière logique. Les outils de cohésion sont utilisés de manière appropriée." data-de="Informationen und Ideen sind logisch organisiert. Kohäsive Mittel werden angemessen verwendet.">Information and ideas are logically organized...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2" data-en="Some organization is evident, but it may not always be logical. Some misuse or overuse of cohesive devices." data-el="Υπάρχει κάποια οργάνωση, αλλά μπορεί να μην είναι πάντα λογική. Υπάρχει κάποια κακή χρήση ή υπερβολική χρήση συνεκτικών μηχανισμών." data-fr="Une certaine organisation est évidente, mais elle n'est pas toujours logique. Mauvaise utilisation ou surutilisation de certains outils de cohésion." data-de="Eine gewisse Organisation ist erkennbar, aber sie ist möglicherweise nicht immer logisch. Einige kohäsive Mittel werden falsch oder übermäßig verwendet.">Some organization is evident...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1" data-en="Lacks logical organization. Cohesive devices are largely absent or misused, making it difficult to follow." data-el="Στερείται λογικής οργάνωσης. Οι συνεκτικοί μηχανισμοί απουσιάζουν σε μεγάλο βαθμό ή χρησιμοποιούνται λανθασμένα, καθιστώντας δύσκολη την παρακολούθηση." data-fr="Manque d'organisation logique. Les outils de cohésion sont largement absents ou mal utilisés, ce qui rend le suivi difficile." data-de="Es fehlt an logischer Organisation. Kohäsive Mittel fehlen weitgehend oder werden falsch verwendet, was das Verfolgen erschwert.">Lacks logical organization...</td>
+                    </tr>
+                    <tr class="rubric-row hover:bg-stone-50">
+                        <td class="px-6 py-4 font-semibold text-stone-900" data-en="Lexical Resource" data-el="ΛΕΞΙΛΟΓΙΚΟΣ ΠΛΟΥΤΟΣ" data-fr="Ressource Lexicale" data-de="Lexikalische Ressourcen">Lexical Resource</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4" data-en="Uses a wide range of vocabulary with precision and sophistication. Very few errors in word choice or formation." data-el="Χρησιμοποιεί ένα ευρύ φάσμα λεξιλογίου με ακρίβεια και εκλέπτυνση. Πολύ λίγα λάθη στην επιλογή ή τον σχηματισμό λέξεων." data-fr="Utilise un large éventail de vocabulaire avec précision et sophistication. Très peu d'erreurs dans le choix ou la formation des mots." data-de="Verwendet ein breites Vokabular mit Präzision und Raffinesse. Sehr wenige Fehler bei der Wortwahl oder Wortbildung.">Uses a wide range of vocabulary with precision...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3" data-en="Uses a good range of vocabulary appropriately. Some minor errors in word choice may occur but do not impede meaning." data-el="Χρησιμοποιεί ένα καλό φάσμα λεξιλογίου κατάλληλα. Μπορεί να υπάρχουν ορισμένα μικρά λάθη στην επιλογή λέξεων που δεν εμποδίζουν το νόημα." data-fr="Utilise une bonne gamme de vocabulaire de manière appropriée. Quelques erreurs mineures dans le choix des mots peuvent survenir mais n'entravent pas le sens." data-de="Verwendet ein gutes Vokabular angemessen. Einige geringfügige Fehler bei der Wortwahl können auftreten, beeinträchtigen aber nicht die Bedeutung.">Uses a good range of vocabulary appropriately...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2" data-en="Uses a limited range of vocabulary. Frequent errors in word choice or formation may cause some difficulty for the reader/listener." data-el="Χρησιμοποιεί περιορισμένο φάσμα λεξιλογίου. Συχνά λάθη στην επιλογή ή τον σχηματισμό λέξεων μπορεί να προκαλέσουν κάποια δυσκολία στον αναγνώστη/ακροατή." data-fr="Utilise une gamme limitée de vocabulaire. Des erreurs fréquentes dans le choix ou la formation des mots peuvent causer des difficultés au lecteur/auditeur." data-de="Verwendet ein begrenztes Vokabular. Häufige Fehler bei der Wortwahl oder Wortbildung können für den Leser/Zuhörer einige Schwierigkeiten verursachen.">Uses a limited range of vocabulary...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1" data-en="Uses very basic vocabulary. Errors in word choice are frequent and significantly impede communication." data-el="Χρησιμοποιεί πολύ βασικό λεξιλόγιο. Τα λάθη στην επιλογή λέξεων είναι συχνά και εμποδίζουν σημαντικά την επικοινωνία." data-fr="Utilise un vocabulaire très basique. Les erreurs de choix de mots sont fréquentes et entravent considérablement la communication." data-de="Verwendet sehr grundlegendes Vokabular. Fehler bei der Wortwahl sind häufig und behindern die Kommunikation erheblich.">Uses very basic vocabulary...</td>
+                    </tr>
+                    <tr class="rubric-row bg-stone-50 hover:bg-stone-100">
+                        <td class="px-6 py-4 font-semibold text-stone-900" data-en="Grammatical Range & Accuracy" data-el="ΓΡΑΜΜΑΤΙΚΗ ΕΠΑΡΚΕΙΑ & ΑΚΡΙΒΕΙΑ" data-fr="Étendue et Précision Grammaticales" data-de="Grammatikalische Bandbreite & Genauigkeit">Grammatical Range & Accuracy</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4" data-en="Uses a wide range of complex structures with flexibility and accuracy. Errors are rare and do not affect understanding." data-el="Χρησιμοποιεί ένα ευρύ φάσμα σύνθετων δομών με ευελιξία και ακρίβεια. Τα λάθη είναι σπάνια και δεν επηρεάζουν την κατανόηση." data-fr="Utilise une large gamme de structures complexes avec souplesse et précision. Les erreurs sont rares et n'affectent pas la compréhension." data-de="Verwendet eine breite Palette komplexer Strukturen mit Flexibilität und Genauigkeit. Fehler sind selten und beeinträchtigen das Verständnis nicht.">Uses a wide range of complex structures...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3" data-en="Uses a mix of simple and complex sentence structures. Errors are present but do not generally impede understanding." data-el="Χρησιμοποιεί ένα μείγμα απλών και σύνθετων προτασιακών δομών. Υπάρχουν λάθη, αλλά γενικά δεν εμποδίζουν την κατανόηση." data-fr="Utilise un mélange de structures de phrases simples et complexes. Des erreurs sont présentes mais n'entravent généralement pas la compréhension." data-de="Verwendet eine Mischung aus einfachen und komplexen Satzstrukturen. Fehler sind vorhanden, beeinträchtigen aber im Allgemeinen nicht das Verständnis.">Uses a mix of simple and complex sentence structures...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2" data-en="Uses a limited range of structures, mainly simple sentences. Frequent grammatical errors can make understanding difficult." data-el="Χρησιμοποιεί περιορισμένο φάσμα δομών, κυρίως απλές προτάσεις. Συχνά γραμματικά λάθη μπορεί να δυσκολέψουν την κατανόηση." data-fr="Utilise une gamme limitée de structures, principalement des phrases simples. Des erreurs grammaticales fréquentes peuvent rendre la compréhension difficile." data-de="Verwendet eine begrenzte Auswahl an Strukturen, hauptsächlich einfache Sätze. Häufige grammatikalische Fehler können das Verständnis erschweren.">Uses a limited range of structures...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1" data-en="Cannot produce basic sentence forms. Errors are numerous and dominate the response, making it very difficult to understand." data-el="Δεν μπορεί να παράγει βασικές προτασιακές μορφές. Τα λάθη είναι πολυάριθμα και κυριαρχούν στην απάντηση, καθιστώντας την πολύ δύσκολη στην κατανόηση." data-fr="Ne peut pas produire de formes de phrases de base. Les erreurs sont nombreuses et dominent la réponse, la rendant très difficile à comprendre." data-de="Kann keine grundlegenden Satzformen erstellen. Fehler sind zahlreich und dominieren die Antwort, was das Verständnis sehr erschwert.">Cannot produce basic sentence forms...</td>
+                    </tr>
+                    <tr class="rubric-row hover:bg-stone-50">
+                        <td class="px-6 py-4 font-semibold text-stone-900" data-en="Comprehension" data-el="ΚΑΤΑΝΟΗΣΗ" data-fr="Compréhension" data-de="Verständnis">Comprehension</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4" data-en="Demonstrates a thorough and nuanced understanding of the topic. Can synthesize information and make insightful connections." data-el="Επιδεικνύει πλήρη και λεπτομερή κατανόηση του θέματος. Μπορεί να συνθέσει πληροφορίες και να κάνει εύστοχες συνδέσεις." data-fr="Démontre une compréhension approfondie et nuancée du sujet. Peut synthétiser des informations et établir des liens pertinents." data-de="Zeigt ein gründliches und nuanciertes Verständnis des Themas. Kann Informationen synthetisieren und aufschlussreiche Verbindungen herstellen.">Demonstrates a thorough and nuanced understanding...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3" data-en="Demonstrates a good general understanding of the topic. Can summarize key points accurately." data-el="Επιδεικνύει καλή γενική κατανόηση του θέματος. Μπορεί να συνοψίσει με ακρίβεια τα βασικά σημεία." data-fr="Démontre une bonne compréhension générale du sujet. Peut résumer les points clés avec précision." data-de="Zeigt ein gutes allgemeines Verständnis des Themas. Kann die wichtigsten Punkte genau zusammenfassen.">Demonstrates a good general understanding...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2" data-en="Shows a basic or partial understanding. May misinterpret some information or rely on surface-level details." data-el="Δείχνει βασική ή μερική κατανόηση. Μπορεί να παρερμηνεύσει ορισμένες πληροφορίες ή να βασίζεται σε επιφανειακές λεπτομέρειες." data-fr="Montre une compréhension de base ou partielle. Peut mal interpréter certaines informations ou s'appuyer sur des détails superficiels." data-de="Zeigt ein grundlegendes oder teilweises Verständnis. Kann einige Informationen falsch interpretieren oder sich auf oberflächliche Details verlassen.">Shows a basic or partial understanding...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1" data-en="Shows little to no understanding of the topic. Major misunderstandings are evident." data-el="Δείχνει ελάχιστη ή καθόλου κατανόηση του θέματος. Είναι εμφανείς σοβαρές παρεξηγήσεις." data-fr="Montre peu ou pas de compréhension du sujet. Des malentendus majeurs sont évidents." data-de="Zeigt wenig bis gar kein Verständnis für das Thema. Große Missverständnisse sind offensichtlich.">Shows little to no understanding...</td>
+                    </tr>
+                     <tr class="rubric-row bg-stone-50 hover:bg-stone-100">
+                        <td class="px-6 py-4 font-semibold text-stone-900" data-en="Preparation" data-el="ΠΡΟΕΤΟΙΜΑΣΙΑ" data-fr="Préparation" data-de="Vorbereitung">Preparation</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="4" data-en="Evident, thorough preparation. Student is fully equipped and has clearly rehearsed or planned their response." data-el="Εμφανής, ενδελεχής προετοιμασία. Ο/Η μαθητής/τρια είναι πλήρως εξοπλισμένος/η και έχει σαφώς κάνει πρόβα ή σχεδιάσει την απάντησή του/της." data-fr="Préparation évidente et approfondie. L'élève est entièrement équipé(e) et a clairement répété ou planifié sa réponse." data-de="Offensichtliche, gründliche Vorbereitung. Der Schüler/die Schülerin ist voll ausgestattet und hat seine/ihre Antwort klar geprobt oder geplant.">Evident, thorough preparation...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="3" data-en="Good preparation is shown. Student has the necessary materials and has a clear plan for the task." data-el="Επιδεικνύεται καλή προετοιμασία. Ο/Η μαθητής/τρια έχει τα απαραίτητα υλικά και ένα σαφές σχέδιο για την εργασία." data-fr="Une bonne préparation est démontrée. L'élève dispose du matériel nécessaire et a un plan clair pour la tâche." data-de="Gute Vorbereitung wird gezeigt. Der Schüler/die Schülerin verfügt über die notwendigen Materialien und hat einen klaren Plan für die Aufgabe.">Good preparation is shown...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="2" data-en="Some preparation is evident, but may be incomplete. Student may be missing materials or seem unsure of the plan." data-el="Κάποια προετοιμασία είναι εμφανής, αλλά μπορεί να είναι ελλιπής. Ο/Η μαθητής/τρια μπορεί να μην έχει υλικά ή να φαίνεται αβέβαιος/η για το σχέδιο." data-fr="Une certaine préparation est évidente, mais peut être incomplète. L'élève peut manquer de matériel ou sembler incertain(e) du plan." data-de="Eine gewisse Vorbereitung ist erkennbar, kann aber unvollständig sein. Dem Schüler/der Schülerin fehlen möglicherweise Materialien oder er/sie scheint sich des Plans unsicher zu sein.">Some preparation is evident...</td>
+                        <td class="score-cell px-6 py-4 text-sm" data-score="1" data-en="Little to no evidence of preparation. Student is unequipped, disorganized, or unfamiliar with the task requirements." data-el="Ελάχιστα ή καθόλου στοιχεία προετοιμασίας. Ο/Η μαθητής/τρια είναι ανεξόπλιστος/η, ανοργάνωτος/η, ή άγνωστος/η με τις απαιτήσεις της εργασίας." data-fr="Peu ou pas de preuve de préparation. L'élève n'est pas équipé(e), est désorganisé(e) ou ne connaît pas les exigences de la tâche." data-de="Wenig bis gar kein Nachweis der Vorbereitung. Der Schüler/die Schülerin ist nicht ausgerüstet, unorganisiert oder mit den Anforderungen der Aufgabe nicht vertraut.">Little to no evidence of preparation...</td>
+                    </tr>
+                    <!-- Behaviour Section - Not Graded -->
+                    <tr class="behaviour-row bg-stone-100 border-t-2 border-dashed border-stone-300">
+                        <td class="px-6 py-4 align-top">
+                            <p class="font-semibold text-stone-900" data-en="Behaviour in Class" data-el="ΣΥΜΠΕΡΙΦΟΡΑ ΣΤΗΝ ΤΑΞΗ" data-fr="Comportement en Classe" data-de="Verhalten im Unterricht">Behaviour in Class</p>
+                            <p class="text-xs font-normal italic text-stone-500" data-en="(For observation only - not graded)" data-el="(Για παρατήρηση μόνο - δεν βαθμολογείται)" data-fr="(Pour observation seulement - non noté)" data-de="(Nur zur Beobachtung - nicht benotet)">(For observation only - not graded)</p>
+                        </td>
+                        <td class="behaviour-cell px-6 py-4 text-sm" data-en="Consistently positive, engaged, and respectful. A role model for others." data-el="Σταθερά θετικός/ή, αφοσιωμένος/η και με σεβασμό. Πρότυπο για τους άλλους." data-fr="Constamment positif/ve, engagé(e) et respectueux/se. Un modèle pour les autres." data-de="Durchweg positiv, engagiert und respektvoll. Ein Vorbild für andere.">Consistently positive...</td>
+                        <td class="behaviour-cell px-6 py-4 text-sm" data-en="Generally positive and respectful. Follows instructions and participates appropriately." data-el="Γενικά θετικός/ή και με σεβασμό. Ακολουθεί τις οδηγίες και συμμετέχει κατάλληλα." data-fr="Généralement positif/ve et respectueux/se. Suit les instructions et participe de manière appropriée." data-de="Im Allgemeinen positiv und respektvoll. Befolgt Anweisungen und beteiligt sich angemessen.">Generally positive...</td>
+                        <td class="behaviour-cell px-6 py-4 text-sm" data-en="Sometimes disengaged or disruptive. Requires occasional reminders." data-el="Μερικές φορές αφηρημένος/η ή ενοχλητικός/ή. Απαιτεί περιστασιακές υπενθυμίσεις." data-fr="Parfois désengagé(e) ou perturbateur/trice. Nécessite des rappels occasionnels." data-de="Manchmal unbeteiligt oder störend. Erfordert gelegentliche Erinnerungen.">Sometimes disengaged...</td>
+                        <td class="behaviour-cell px-6 py-4 text-sm" data-en="Frequently disengaged or disruptive, hindering their own or others' learning." data-el="Συχνά αφηρημένος/η ή ενοχλητικός/ή, εμποδίζοντας τη δική του/της ή τη μάθηση των άλλων." data-fr="Fréquemment désengagé(e) ou perturbateur/trice, entravant son propre apprentissage ou celui des autres." data-de="Häufig unbeteiligt oder störend, was das eigene Lernen oder das der anderen behindert.">Frequently disengaged...</td>
+                    </tr>
+                    <tr class="bg-stone-100">
+                        <td class="px-6 pb-4 pt-0 text-xs font-semibold text-stone-600 align-top" data-en="Additional Comments:" data-el="Πρόσθετα Σχόλια:" data-fr="Commentaires Additionnels:" data-de="Zusätzliche Kommentare:">Additional Comments:</td>
+                        <td class="px-6 pb-4 pt-0" colspan="4">
+                            <textarea id="behaviour-comments" class="w-full h-16 p-2 border border-stone-300 rounded-md text-sm font-sans" placeholder="Enter comments here..."></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8 flex flex-col sm:flex-row justify-end items-center gap-4">
+            <div class="bg-white p-4 rounded-lg shadow w-full sm:w-auto text-center sm:text-left">
+                <h3 class="text-lg font-bold text-stone-900" data-en="Total Score" data-el="ΣΥΝΟΛΙΚΗ ΒΑΘΜΟΛΟΓΙΑ" data-fr="Score Total" data-de="Gesamtpunktzahl">Total Score</h3>
+                <div class="flex items-baseline justify-center sm:justify-start gap-4">
+                    <p class="text-3xl font-bold text-amber-700"><span id="total-score">0</span> / 24</p>
+                    <p class="text-xl font-bold text-stone-600">(<span id="score-out-of-20">0.0</span> / 20)</p>
+                </div>
+            </div>
+            <button id="print-btn" class="w-full sm:w-auto bg-amber-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors duration-300 flex items-center justify-center gap-2" style="background-color: #c19a6b;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="http://www.w3.org/2000/svg" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
+                <span data-en="Print" data-el="Εκτύπωση" data-fr="Imprimer" data-de="Drucken">Print</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- This is the hidden, formatted view for printing -->
+    <div id="print-output" class="print-only p-4"></div>
+
+    <footer class="text-center text-sm text-stone-500 py-6 no-print">
+        <span data-en="✨✍️ Devised by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved ✍️✨" data-el="✨✍️ Δημιουργία: Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικών-Θεατρολόγος, Διευθυντής 1ου Γυμνασίου Πυλαίας ✍️✨" data-fr="✨✍️ Conçu par Panagiotis Domvros, Professeur d'Anglais et de Théâtre, Tous Droits Réservés ✍️✨" data-de="✨✍️ Entwickelt von Panagiotis Domvros, Englisch- und Dramalehrer, Alle Rechte vorbehalten ✍️✨">✨✍️ Devised by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved ✍️✨</span>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentLang = 'en';
+            
+            const btnEn = document.getElementById('btn-en');
+            const btnEl = document.getElementById('btn-el');
+            const btnFr = document.getElementById('btn-fr');
+            const btnDe = document.getElementById('btn-de');
+            const printBtn = document.getElementById('print-btn');
+            const translatableElements = document.querySelectorAll('[data-en][data-el]');
+            const rubricTable = document.getElementById('rubric-table');
+            const totalScoreEl = document.getElementById('total-score');
+            const scoreOutOf20El = document.getElementById('score-out-of-20');
+            const printOutputContainer = document.getElementById('print-output');
+            const behaviourCommentsEl = document.getElementById('behaviour-comments');
+
+            const placeholderText = {
+                en: "Enter comments here...",
+                el: "Εισαγάγετε σχόλια εδώ...",
+                fr: "Entrez vos commentaires ici...",
+                de: "Geben Sie hier Kommentare ein..."
+            };
+
+            const calculateTotalScore = () => {
+                let total = 0;
+                rubricTable.querySelectorAll('.rubric-row').forEach(row => {
+                    const selectedCell = row.querySelector('.selected-score');
+                    if (selectedCell) {
+                        total += parseInt(selectedCell.dataset.score, 10);
+                    }
+                });
+                totalScoreEl.textContent = total;
+
+                // Calculate and display score out of 20
+                const scoreOutOf20 = (total / 24) * 20;
+                scoreOutOf20El.textContent = scoreOutOf20.toFixed(1); // Rounded to one decimal place
+            };
+
+            const handleScoreSelect = (event) => {
+                const clickedCell = event.target.closest('.score-cell');
+                if (!clickedCell) return;
+
+                const parentRow = clickedCell.closest('.rubric-row');
+                const currentlySelected = parentRow.querySelector('.selected-score');
+                
+                if (currentlySelected) {
+                    currentlySelected.classList.remove('selected-score');
+                }
+
+                if(currentlySelected !== clickedCell){
+                    clickedCell.classList.add('selected-score');
+                }
+                
+                calculateTotalScore();
+            };
+
+            const handleBehaviourSelect = (event) => {
+                const clickedCell = event.target.closest('.behaviour-cell');
+                if (!clickedCell) return;
+
+                const parentRow = clickedCell.closest('.behaviour-row');
+                const currentlySelected = parentRow.querySelector('.selected-behaviour');
+
+                if (currentlySelected) {
+                    currentlySelected.classList.remove('selected-behaviour');
+                }
+
+                if (currentlySelected !== clickedCell) {
+                    clickedCell.classList.add('selected-behaviour');
+                }
+            };
+            
+            const switchLanguage = (lang) => {
+                currentLang = lang;
+                translatableElements.forEach(element => {
+                    if (element.dataset[lang]) {
+                         element.textContent = element.dataset[lang];
+                    }
+                });
+
+                behaviourCommentsEl.placeholder = placeholderText[lang];
+
+                [btnEn, btnEl, btnFr, btnDe].forEach(button => {
+                    button.classList.toggle('active', button.dataset.lang === lang);
+                });
+            };
+            
+            const prepareAndPrint = () => {
+                const studentName = document.getElementById('student-name').value || 'N/A';
+                const teacherName = document.getElementById('teacher-name').value || 'N/A';
+                const subject = document.getElementById('subject').value || 'N/A';
+                const className = document.getElementById('class-name').value || 'N/A';
+                const date = document.getElementById('date').value;
+                const totalScore = totalScoreEl.textContent;
+                const scoreOutOf20 = scoreOutOf20El.textContent;
+                const behaviourComments = behaviourCommentsEl.value;
+                const selectedBehaviourCell = rubricTable.querySelector('.selected-behaviour');
+
+
+                const labels = {
+                    en: { title: "Descriptive Grading Rubric for Language Subjects", student: "Student", teacher: "Teacher", subject: "Subject", class: "Class", date: "Date", total: "Total Score", behaviour: "Behavioural Observations", comments: "Additional Comments" },
+                    el: { title: "Περιγραφική Κλίμακα Αξιολόγησης για Γλωσσικά Μαθήματα", student: "Μαθητής/τρια", teacher: "Εκπαιδευτικός", subject: "Μάθημα", class: "Τμήμα", date: "Ημερομηνία", total: "Συνολική Βαθμολογία", behaviour: "Παρατηρήσεις Συμπεριφοράς", comments: "Πρόσθετα Σχόλια" },
+                    fr: { title: "Grille d'Évaluation Descriptive pour les Matières Linguistiques", student: "Élève", teacher: "Enseignant(e)", subject: "Matière", class: "Classe", date: "Date", total: "Score Total", behaviour: "Observations Comportementales", comments: "Commentaires Additionnels" },
+                    de: { title: "Deskriptive Bewertungsrubrik für Sprachfächer", student: "Schüler/in", teacher: "Lehrer/in", subject: "Fach", class: "Klasse", date: "Datum", total: "Gesamtpunktzahl", behaviour: "Verhaltensbeobachtungen", comments: "Zusätzliche Kommentare" }
+                };
+                const currentLabels = labels[currentLang];
+                const footerText = document.querySelector('footer span').dataset[currentLang];
+
+                let printHTML = `<div class="font-sans" style="font-family: 'Georgia', serif;">`;
+                printHTML += `<h1 class="text-2xl font-bold border-b-2 pb-1 mb-4">${currentLabels.title}</h1>`;
+                
+                printHTML += `<div class="grid grid-cols-2 gap-x-6 gap-y-2 mb-4 text-sm">`;
+                printHTML += `<div><strong class="font-semibold">${currentLabels.student}:</strong> ${studentName}</div>`;
+                printHTML += `<div><strong class="font-semibold">${currentLabels.teacher}:</strong> ${teacherName}</div>`;
+                printHTML += `<div><strong class="font-semibold">${currentLabels.subject}:</strong> ${subject}</div>`;
+                printHTML += `<div><strong class="font-semibold">${currentLabels.class}:</strong> ${className}</div>`;
+                printHTML += `<div><strong class="font-semibold">${currentLabels.date}:</strong> ${date}</div>`;
+                printHTML += `</div>`;
+
+                const headerCells = Array.from(rubricTable.querySelectorAll('thead th'));
+                rubricTable.querySelectorAll('.rubric-row').forEach(row => {
+                    const selectedCell = row.querySelector('.selected-score');
+                    if (selectedCell) {
+                        const criterionTitle = row.querySelector('td:first-child').dataset[currentLang];
+                        const scoreIndex = Array.from(selectedCell.parentNode.children).indexOf(selectedCell);
+                        const scoreTitle = headerCells[scoreIndex].dataset[currentLang];
+                        const scoreDescription = selectedCell.dataset[currentLang];
+
+                        printHTML += `<div class="mb-3 break-inside-avoid">`;
+                        printHTML += `<h2 class="text-lg font-bold text-stone-800">${criterionTitle}</h2>`;
+                        printHTML += `<div class="mt-1 p-2 bg-stone-100 rounded-lg border border-stone-200">`;
+                        printHTML += `<p class="font-semibold text-stone-700 text-sm">${scoreTitle}</p>`;
+                        printHTML += `<p class="mt-1 text-xs text-stone-600">${scoreDescription}</p>`;
+                        printHTML += `</div></div>`;
+                    }
+                });
+                
+                if (selectedBehaviourCell) {
+                    const behaviourDescription = selectedBehaviourCell.dataset[currentLang];
+                    printHTML += `<div class="mb-3 break-inside-avoid">`;
+                    printHTML += `<h2 class="text-lg font-bold text-stone-800">${currentLabels.behaviour}</h2>`;
+                    printHTML += `<div class="mt-1 p-2 bg-stone-100 rounded-lg border border-stone-200">`;
+                    printHTML += `<p class="text-xs text-stone-600">${behaviourDescription}</p>`;
+                    printHTML += `</div></div>`;
+                }
+
+                if (behaviourComments && behaviourComments.trim() !== '') {
+                    printHTML += `<div class="mb-3 break-inside-avoid">`;
+                    printHTML += `<h2 class="text-lg font-bold text-stone-800">${currentLabels.comments}</h2>`;
+                    printHTML += `<div class="mt-1 p-2 bg-stone-100 rounded-lg border border-stone-200">`;
+                    printHTML += `<p class="text-xs text-stone-600" style="white-space: pre-wrap;">${behaviourComments}</p>`;
+                    printHTML += `</div></div>`;
+                }
+
+                printHTML += `<div class="flex justify-end mt-4 pt-2 border-t-2">`;
+                printHTML += `<div class="text-right">`;
+                printHTML += `<p class="text-base font-bold">${currentLabels.total}</p>`;
+                printHTML += `<p class="text-3xl font-bold" style="color: #c19a6b;">${totalScore} / 24 (${scoreOutOf20} / 20)</p>`;
+                printHTML += `</div></div>`;
+
+                printHTML += `<footer class="text-center text-xs text-stone-500 pt-4 mt-4 border-t">`;
+                printHTML += footerText;
+                printHTML += `</footer>`;
+
+                printHTML += `</div>`;
+
+                printOutputContainer.innerHTML = printHTML;
+                window.print();
+            };
+
+            btnEn.addEventListener('click', () => switchLanguage('en'));
+            btnEl.addEventListener('click', () => switchLanguage('el'));
+            btnFr.addEventListener('click', () => switchLanguage('fr'));
+            btnDe.addEventListener('click', () => switchLanguage('de'));
+            printBtn.addEventListener('click', prepareAndPrint);
+            
+            if (rubricTable) {
+                const tableBody = rubricTable.querySelector('tbody');
+                tableBody.addEventListener('click', (event) => {
+                    if (event.target.closest('.score-cell')) {
+                        handleScoreSelect(event);
+                    } else if (event.target.closest('.behaviour-cell')) {
+                        handleBehaviourSelect(event);
+                    }
+                });
+            }
+            
+            const dateInput = document.getElementById('date');
+            if(dateInput) {
+                dateInput.valueAsDate = new Date();
+            }
+            switchLanguage('en');
+        });
+    </script>
+</body>
+</html>
